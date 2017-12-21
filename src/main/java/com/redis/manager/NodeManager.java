@@ -31,7 +31,18 @@ public class NodeManager {
         for(int i=1;i<hosts.size();i++){
             jedis.clusterMeet(hosts.get(i).getIp(),hosts.get(i).getPort());
         }
+        jedis.close();
+    }
 
+    /**
+     * 设置节点的slave
+     * @param
+     */
+    public void  setSlave(Host master,Host slave){
+        Jedis jedis =JedisManager.getJedis(slave);
+        //
+        jedis.clusterReplicate(getNodeName(master));
+        System.out.println(11);
         jedis.close();
     }
 
@@ -54,7 +65,11 @@ public class NodeManager {
     public void removeCluster(Host host,List<Host> hosts){
         Jedis jedis = JedisManager.getJedis(host);
         for(int i=0;i<hosts.size();i++){
-            jedis.clusterForget(getNodeName(hosts.get(0)));
+            String nodeId = getNodeName(hosts.get(i));
+            if(nodeId == null){
+                continue;
+            }
+            jedis.clusterForget(nodeId);
         }
         jedis.close();
     }
